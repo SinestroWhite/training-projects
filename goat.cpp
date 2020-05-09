@@ -27,10 +27,18 @@ int main() {
         sizes.push_back(temp);
     }
 
+    if (K == 1) {
+        long long sum = 0;
+        for (int i = 0; i < N; i++) {
+            sum += sizes[i];
+        }
+        cout << "Capacity is: " << sum << endl;
+    }
+
     sort(sizes.begin(),sizes.end(), greater<>());
 
     int maxElement = sizes[0];
-    int capacity = maxElement;
+    long long capacity = maxElement;
     int moves = 0;
 
     while (moves != K) {
