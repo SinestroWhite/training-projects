@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>Strawberries</title>
+    
+    <style>
+        .group {
+            margin-bottom: 10px;
+        }
+        .form {
+            transition: opacity 0.3s;
+        }
+        .list {
+            opacity: 0;
+            height: 0;
+            transition: opacity 0.3s;
+        }
+        .age-button {
+            margin-top: 5px;
+        }
+        .white-square {
+            width: 30px;
+            height: 30px;
+            border: black solid 1px;
+            border-radius: 5px;
+            margin: 3px 3px;
+        }
+        .black-square {
+            width: 30px;
+            height: 30px;
+            background: black;
+            border: black solid 1px;
+            border-radius: 5px;
+            margin: 3px 3px;
+        }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <main>
+        <div id="form" class="form">
+            <div class="group">
+                <label>K:</label>
+                <input id="K" type="number" min="0" max="1000" style="margin-left: 9px;"/>
+                <label>L:</label>
+                <input id="L" type="number" min="0" max="1000" style="margin-left: 9px;"/>
+            </div>
+            <div class="group">
+                <label>X1:</label>
+                <input id="X1" type="number" min="0" max="1000"/>
+                <label>Y1:</label>
+                <input id="Y1" type="number" min="0" max="1000"/>
+            </div>
+            <div class="group">
+                <label>X2:</label>
+                <input id="X2" type="number" min="0" max="1000"/>
+                <label>Y2:</label>
+                <input id="Y2" type="number" min="0" max="1000"/>
+            </div>
+            
+            <button id="submit">Submit</button>
+        </div>
+        <div class="list" id="list">
+            <p>Day: <span id="day"></span></p>
+            <p>Number of not rotten strawberries: <span id="count"></span></p>
+            <div id="array"></div>
+            <button id="age" class="age-button">Age</button>
+            <br>
+            <br>
+            <label>Day: </label>
+            <input id="daysToPass" />
+            <button id="go">Fast Forward</button>
+        </div>
+    </main>
+    <footer></footer>
+    
+    
+    <script>
+        const MIN = 0;
+        const MAX = 1000;
+        let K, L, X1, Y1, X2, Y2, arr, day = 1;
+    
+        function ageWithOneDay(arr, L, K, day) {
+            for (let i = 0; i < K; i++) {
+                for (let j = 0; j < L; j++) {
+                    if (arr[i][j] == day) {
+                        if (i > MIN) {
+                            arr[i-1][j] = day + 1;
+                        }
+
+                        if (i < K-1) {
+                            arr[i+1][j] = day + 1;
+                        }
+
+                        if (j > MIN) {
+                            arr[i][j-1] = day + 1;
+                        }
+
+                        if (j < L-1) {
+                            arr[i][j+1] = day + 1;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function countRottenStrawberries(arr, K, L) {
+            let count = 0;
+            for (let i = 0; i < K; i++) {
+                for (let j = 0; j < L; j++) {
+                    if (arr[i][j] == 0) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+        
+        function render() {
+            let html = "";
+            for (let i = 0; i < K; i++) {
+                html += "<div style=\"display: flex;\">"
+                for (let j = 0; j < L; j++) {
+                    if (arr[i][j] == 0) {
+                        html += `<div class="white-square"></div>`;
+                    } else {
+                        html += `<div class="black-square"></div>`;
+                    }
+                }
+                html += "</div>"
+            }
+            document.getElementById("count").innerHTML = countRottenStrawberries(arr, K, L);
+            document.getElementById("day").innerHTML = day - 1;
+            document.getElementById("array").innerHTML = html;
+        }
+        
+        function execute() {
+            K = document.getElementById("K").value;
+            L = document.getElementById("L").value;
+            X1 = document.getElementById("X1").value;
+            X2 = document.getElementById("X2").value;
+            Y1 = document.getElementById("Y1").value;
+            Y2 = document.getElementById("Y2").value;
+            
+            if (X1 == "" || Y1 == "" || K == "" || L == "" || MIN > K || K > L || L >= MAX) {
+                alert("Invalid Input!");
+                return;
+            }
+            
+            K = Number(K);
+            L = Number(L);
+            
+            arr = Array(K).fill().map(() => Array(L).fill(0));
+            
+            X1 = Number(X1);
+            Y1 = Number(Y1);
+            
+            X1--; Y1--;
+            arr[X1][Y1] = 1;
+            if (X2 != "" && Y2 != "") {
+                X2 = Number(X2);
+                Y2 = Number(Y2);
+                
+                X2--; Y2--;
+                arr[X2][Y2] = 1;
+            }
+            
+            // Fading out the form.
+            document.getElementById("form").setAttribute("style", "opacity: 0; height: 0;");
+            setTimeout(() => {
+                // Waiting for the fade-out animation to finish.
+            }, 300);
+            // Visualizing the array
+            render();
+            // Start the fade-in animation
+            document.getElementById("list").setAttribute("style", "opacity: 100; height: auto;");
+            
+        }
+        
+        function ageForward() {
+            ageWithOneDay(arr, L, K, day);
+            day++;
+            render();
+        }
+        
+        function goTo() {
+            for (let i = 1; i <= Number(document.getElementById("daysToPass").value); i++) {
+                ageWithOneDay(arr, L, K, day);
+                day++;
+            }
+            render();
+        }
+        
+        document.getElementById("submit").addEventListener("click", execute);
+        document.getElementById("age").addEventListener("click", ageForward);
+        document.getElementById("go").addEventListener("click", goTo);
+    
+    </script>
+  </body>
+</html>
